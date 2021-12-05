@@ -30,7 +30,7 @@
 
 .sheet-pc {
     min-width: 900px;
-    background:url('https://raw.githubusercontent.com/Roll20/roll20-character-sheets/master/The%20One%20Ring/assets/images/parchment.jpg');
+    -background:url('https://raw.githubusercontent.com/Roll20/roll20-character-sheets/master/The%20One%20Ring/assets/images/parchment.jpg');
     border:10px solid transparent;
   	border-image:url('https://raw.githubusercontent.com/Roll20/roll20-character-sheets/master/The%20One%20Ring/assets/images/character_sheet_frame-65pourcent.png') 305 repeat;
 }
