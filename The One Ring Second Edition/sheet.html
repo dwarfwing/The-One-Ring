@@ -830,6 +830,7 @@
 			favoured = await getQuery(`?{Favoured?| Normal,1d12 | Favoured,2d12kh1 | Ill-favoured,2d12kl1}`);
 		}
 		modifiers = await getQuery(`?{Modifiers?|0}`);
+		let modStr = modifiers === 0 ? "" : `{{modification=${modifiers}}}`;
 
         //const attrs = await asw.getAttrs(["character_name", "favorill"]);
         //const charname = attrs.character_name,
@@ -841,7 +842,7 @@
 		clog(`Character: ${char}, Base dice: ${successdice}, base string ${successStr}, modifiers: ${modifiers}, target: ${tn}, favill ${favill}, favoured ${favoured}, skill favoured: ${act_fav}`);
         //for(let i = 1; i <= base; i++) { successStr += "[[1d6]] "; }
 
-        rollBase = `&{template:tor} {{character-name=${char} }} {{roll-name=${act} }} {{favour=[[0]]}} {{total=[[0]]}} {{diff=[[0]]}} {{greatness=[[0]]}} {{passthroughdata=[[0]]}} {{outcome=[[0]]}} {{feat=[[${favoured}]]}} {{feat1=[[1d12]]}} {{feat2=[[1d12]]}} {{r1=[[ ${successStr} ]] }} {{target=${tn} }} {{modification=${modifiers} }} {{skill-fav=${act_fav} }}`;
+        rollBase = `&{template:tor} {{character-name=${char} }} {{roll-name=${act} }} {{favour=[[0]]}} {{total=[[0]]}} {{diff=[[0]]}} {{greatness=[[0]]}} {{passthroughdata=[[0]]}} {{outcome=[[0]]}} {{feat=[[${favoured}]]}} {{feat1=[[1d12]]}} {{feat2=[[1d12]]}} {{r1=[[ ${successStr} ]] }} {{target=${tn} }} ${modStr} {{skill-fav=${act_fav} }}`;
         let rollresult = await startRoll(rollBase),
         	rollSuccess = int(rollresult.results.r1.result),
 			rollFeat = int(rollresult.results.feat.result),
@@ -1364,6 +1365,8 @@
 				<div class="half-col die-title">Success</div>
 				<div class="half-col die-result">{{feat}}</div>
 				<div class="half-col die-result">{{r1}}</div>
+				<div class="half-col die-comment">{{favoured}}</div>
+				<div class="half-col die-comment">{{#modification}}{{/modification}}</div>
 				<div class="full-col center die-result">{{computed::total}}</div>
 				<div class="full-col center die-title">Total</div>
 				<div class="full-col center die-result">{{computed::diff}}</div>
