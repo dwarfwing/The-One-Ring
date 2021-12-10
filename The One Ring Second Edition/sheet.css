@@ -919,6 +919,7 @@ div.weapons-grid {
 	justify-content: center;
 	align-items: center;
 	justify-self: center;
+	background-image: url('https://github.com/dwarfwing/The-One-Ring/blob/main/The%20One%20Ring%20Second%20Edition/images/red-square2-rot.png?raw=true');
   }
   .sheet-rolltemplate-tor .sheet-die-result span {
 	display:inline-flex;
@@ -934,8 +935,7 @@ div.weapons-grid {
 	background-color: transparent;
 	border: 2px solid #AC4637 !important;
 	font-weight: normal;
-	background-image: url('https://dlpng.com/png/7062684');
-  }
+ }
 
 
   
