@@ -66,51 +66,124 @@
     }
 
     // Primary Roll, triggered from sheet
-    const rollFirst = async (ev, tn) => {
+    const rollFirst = async (char, act, dice, tn, act_fav, favill) => {
+		
+		let favId = 1,
+			favStr = "1d12",
+			favOutput = "",
+			modifiers = 0,
+			successdice = 0,
+			successStr = "",
+			rollBase = "";
+
         // We'll pretend we've done a getAttrs on the attacker's weapon for all the required values
         // Row ID's must be provided when using action buttons too, we'll skip all of that here though
 		//var evname = ev.htmlAttributes.name;
-        clog(`First event: ${JSON.stringify(ev)}`);
-        clog(`Event name: ${ev.htmlAttributes.name}`);
+        //clog(`First event: ${JSON.stringify(ev)}`);
+        //clog(`Event name: ${ev.htmlAttributes.name}`);
         //clog(`Event name: ${evname}`);
-        const rollname = (ev.htmlAttributes.name).slice(4); 
-        clog(`Roll name: ${rollname}`);
+        //const rollname = (ev.htmlAttributes.name).slice(4); 
+		act = act.charAt(0).toUpperCase() + act.slice(1);
+        clog(`Character name: ${name}, Roll name: ${act}, Target number: ${tn}, favoured: ${act_fav}, Favour-ill: ${favill}`);
 
 		// GET MODIFIER HERE
-		let favoured = await getQuery(`?{Favoured?| Normal,1d12 | Favoured,2d12kh1 | Ill-favoured,2d12kl1}`);
-		let modifiers = await getQuery(`?{Modifiers?|0}`);
+		if (act_fav === "1") {
+			favId = await getQuery(`?{Favoured?| Favoured,2 | Normal,1 | Ill-favoured,0}`);
+		} else {
+			favId = await getQuery(`?{Favoured?| Normal,1 | Favoured,2 | Ill-favoured,0}`);
+		}
+		clog(`Favoured test 1: ${!!(favId === 2)}`);
+		favStr = favId === 2 ? "2d12kh1" : ( favId === 0 ? "2d12kl1" : "1d12" );
+		clog(`Favoured string: ${favStr}`);
+		favOutput =  favId === 2 ? "{{favoured=Favoured}}" : ( favId === 0 ? "{{favoured=Ill-favoured}}" : "" );
+		clog(`Favoured output: ${favOutput}`);
+		modifiers = await getQuery(`?{Modifiers?|0}`);
+		let modStr = modifiers === 0 ? "" : `{{modification=${modifiers}}}`;
 
-        const attrs = await asw.getAttrs(["character_name", "favorill", `${rollname}`, `${rollname}_favoured`]);
-        const charname = attrs.character_name,
-            favill = int(attrs.favourill),
-			skillfav = int(attrs[rollname+'_favoured']);
-		let basedice = int(attrs[rollname]) + int(modifiers); 
-		basedice = basedice < 0 ? 0 : basedice;
-        var baseStr = `${basedice}d6`;
-		clog(`Character: ${charname}, Base dice: ${basedice}, base string ${baseStr}, modifiers: ${modifiers}, target: ${tn}, favill ${favill}, favoured ${favoured}, skill favoured: ${skillfav}`);
-        //for(let i = 1; i <= base; i++) { baseStr += "[[1d6]] "; }
-        //for(let i = 1; i <= favour; i++) { stressStr += "[[1d6]] "; }
+        //const attrs = await asw.getAttrs(["character_name", "favorill"]);
+        //const charname = attrs.character_name,
+        //    favill = int(attrs.favourill),
+		//	skillfav = int(attrs[rollname+'_favoured']);
+		successdice = int(dice) + int(modifiers); 
+		successdice = successdice < 0 ? 0 : successdice;
+        successStr = `${successdice}d6`;
+		clog(`Character: ${char}, Base dice: ${successdice}, base string ${successStr}, modifiers: ${modifiers}, target: ${tn}, favill ${favill}, favoured ${favoured}, skill favoured: ${act_fav}`);
 
-        let rollBase = `&{template:default} {{character-name=${charname} }} {{roll-name=${rollname} }} {{r1=[[ ${baseStr} + ${favoured} ]] }} {{Target=${tn} }} {{difference=[[0]]}} {{passthroughdata=[[0]]}}`;
-        let rollresult = await startRoll(rollBase);
-        let rollValue = rollresult.results.r1.result;
-        const diff = rollValue - attrs.tn;
+        rollBase = `&{template:tor} {{character-name=${char} }} {{roll-name=${act} }} {{favour=[[0]]}} {{total=[[0]]}} {{diff=[[0]]}} {{greatness=[[0]]}} {{passthroughdata=[[0]]}} {{outcome=[[0]]}} {{feat=[[${favoured}]]}} {{feat1=[[1d12]]}} {{feat2=[[1d12]]}} {{r1=[[ ${successStr} ]] }} {{target=${tn} }} ${favOutput} ${modStr} {{skill-fav=${act_fav} }}`;
+        let rollresult = await startRoll(rollBase),
+        	rollSuccess = int(rollresult.results.r1.result),
+			rollFeat = int(rollresult.results.feat.result),
+        	rollFeat1 = int(rollresult.results.feat1.result),
+        	rollFeat2 = int(rollresult.results.feat2.result);
+
+		let rollTotal = rollSuccess + rollFeat; 
+		const rollDiff = rollTotal - int(tn);
+		clog(`rollSuccess: ${rollSuccess}, Feat1: ${rollFeat1}, RollFeat2: ${rollFeat2}, rollTotal: ${rollTotal}, Target Number: ${tn}, Diff: ${rollDiff}`);
+
+		// FAVOURED LOGIC HERE
+		/*let favId = "";
+		clog(`Case 1: ${!!(favoured === "2d12kh1")}`);
+		clog(`Case 2: ${!!(favoured === "2d12kl1")}`);
+		clog(`Case 3: ${!!(act_fav == 0)}`);
+		clog(`Case 4: ${!!(act_fav == 1)}`);
+		switch (true) {
+			case favoured === "2d12kh1" && act_fav == 1 :
+				favoured = 2;
+				break;
+			case favoured === "2d12kh1" && act_fav == 0 :
+				favId = 2;
+				break;
+			case favoured === "2d12kl1" && act_fav == 1 :
+				favId = 1;
+				break;
+			case favoured === "2d12kl1" && act_fav == 0 :
+				favId = 0;
+				break;
+			default :
+				favId = 1; 
+				break;
+		}
+		*/
+		//favoured === '2d12kh1' ? favId = 2 : (favoured === '2d12kl1' ? favId = 0 : favid = 1);
+
+		// GREATNESS LOGIC
+		let outcome = rollTotal >= tn ? "Success!" : "Failure!";
+
+		// MISERALBE LOGIC?
+
 
 		// Storing all the passthrough data required for the next roll in an Object helps for larger rolls
-        clog(`Roll result results II: ${JSON.stringify(rollresult.results)}`);
-		rollresult.results.difference = rollEscape.escape(diff); 
+        clog(`Roll result results I: ${JSON.stringify(rollresult.results)}`);
+		//rollresult.results.difference.result = rollDiff; 
+		//rollresult.results.passthroughdata = "This is a test";
         clog(`Roll result results II: ${JSON.stringify(rollresult.results)}`);
 
-        //clog(`First roll data: ${JSON.stringify(rollresult)}`);
-        //clog(`First roll data rolls: ${JSON.stringify(rollresult.rolls)}`);
+        clog(`First roll data: ${JSON.stringify(rollresult)}`);
+        clog(`First roll diff: ${JSON.stringify(rollDiff)}`);
 		//clog(`Roll data: ${rollEscape.escape(rollData)}`);
         // Storing all the passthrough data required for the next roll in an Object helps for larger rolls
+
+		//let downRoll = rollresult.results.roll1mod.result;
+		//let origRoll = rollresult.results.r1.result;
+		//let dieRoll = rollresult.results.r1.dice[0];
+		//console.log(dieRoll);
+		let rollData = rollresult.results; // Holding the computed data in an object is a bit cleaner if your rolls get more complex
+		rollData = Object.assign(rollresult);
+
+		rollData.total = rollTotal; 
+		rollData.diff = rollDiff;
+		rollData.favoured = favId; 
+		rollData.outcome = outcome;
+		console.log('Roll data: ' + JSON.stringify(rollData));
+
+		rollData.passthroughdata = "This is a test";
 
         // Finish the roll, passing the escaped rollData object into the template as computed::passthroughdata
         // Our roll template then inserts that into [butonlabel](~selected|buttonlink||<computed::passthroughdata>)
         // ~selected allows anyone to click the button with their token selected. Omitting this will cause the button
         // to default to whichever character is active in the sandbox when the button is created
-        finishRoll(rollresult.rollId, rollresult.results);
+        //finishRoll(rollresult.rollId, rollresult.results);
+        finishRoll(rollresult.rollId, rollData);
 
 		/*
 		{
@@ -122,10 +195,22 @@
 		*/
     };
 
-    // The pushroll button still needs its event listener, just like a normal button
-    on('clicked:awe clicked:strength clicked:agility clicked:wits clicked:empathy', async (ev) => {
+    // The attribute rolls
+    on('clicked:strength clicked:wits clicked:heart', async (ev) => {
         clog(`Starting first roll`);
         await rollFirst(ev, 14);
+        clog(`Completed first roll`);
+    });
+
+    // Strength based skill rolls
+    on('clicked:awe clicked:athletics clicked:awareness clicked:hunting clicked:song clicked:craft', async (ev) => {
+        clog(`Starting first roll`);
+		let action = (ev.htmlAttributes.name).slice(4),
+			data = await asw.getAttrs(['character_name', 'strengthtn', action, `${action}_favoured`, 'favourill']),
+			actdice = data[action],
+			act_fav = data[`${action}_favoured`];
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, Action value: ${actdice}, Action favoured value: ${act_fav}`);
+        await rollFirst(data.character_name, action, actdice, data.strengthtn, act_fav, data.favourill);
         clog(`Completed first roll`);
     });
 
