@@ -73,9 +73,9 @@
 					</div>
 				
 					<div class="sheet-row">
-						<button type="roll" value="/me rolls for Athletics against Strength TN (@{strengthtn}) .\n/roll @{favorill} + (@{athletics}+?{Bonus Dice|0})t[@{wearytype}]" name="roll_athleticscheck"></button>
+						<button type="roll" value="/me rolls for Athletics against Strength TN (@{strengthtn}) .\n/roll @{favorill} + (@{athletics}+?{Bonus Dice|0})t[@{wearytype}]" id="roll_athleticscheck" name="roll_athleticscheck"></button>
 						<input type="checkbox" name="attr_athletics_favoured">
-						<span class="label">Athletics</span>
+						<label for="roll_athleticscheck" class="label">Athletics</label>
 						<div class="sheet-hover-info" data-i18n="athletics-description"><span class='sheet-strong'>Athletics</span> is a broad skill, covering most of the physical activities that a hero might undertake while adventuring, including r unning, leaping, climbing, swimming and throwing stones or other small objects. Heroes with high <span class='sheet-strong'>Athletics</span> skill scores exhibit a winning combination of physical prowess, grace and control, generally gained through continuous exercise and daily exertion.<br><br>A successful <span class='sheet-strong'>Athletics</span> roll produces a satisfactory outcome in the physical activity, while a failed roll might even lead to serious harm, depending on the circumstances. A great or extraordinary result suggests a spectacular achievement.</div>
 						<div class="sheet-dots">
 							<input type="radio" name="attr_athletics" value="0" checked="checked" /><span></span>
@@ -807,7 +807,9 @@
     // Primary Roll, triggered from sheet
     const rollFirst = async (char, act, dice, tn, act_fav, favill) => {
 		
-		let favoured = "1d12",
+		let favId = 1,
+			favStr = "1d12",
+			favOutput = "",
 			modifiers = 0,
 			successdice = 0,
 			successStr = "",
@@ -820,29 +822,43 @@
         //clog(`Event name: ${ev.htmlAttributes.name}`);
         //clog(`Event name: ${evname}`);
         //const rollname = (ev.htmlAttributes.name).slice(4); 
+
 		act = act.charAt(0).toUpperCase() + act.slice(1);
         clog(`Character name: ${name}, Roll name: ${act}, Target number: ${tn}, favoured: ${act_fav}, Favour-ill: ${favill}`);
 
-		// GET MODIFIER HERE
+		// GET MODIFIER AND FAVOURED HERE
 		if (act_fav === "1") {
-			favoured = await getQuery(`?{Favoured?| Favoured,2d12kh1 | Normal,1d12 | Ill-favoured,2d12kl1}`);
+			favId = await getQuery(`?{Favoured?| Favoured,2 | Normal,1 | Ill-favoured,0}`);
 		} else {
-			favoured = await getQuery(`?{Favoured?| Normal,1d12 | Favoured,2d12kh1 | Ill-favoured,2d12kl1}`);
+			favId = await getQuery(`?{Favoured?| Normal,1 | Favoured,2 | Ill-favoured,0}`);
 		}
 		modifiers = await getQuery(`?{Modifiers?|0}`);
-		let modStr = modifiers === 0 ? "" : `{{modification=${modifiers}}}`;
 
-        //const attrs = await asw.getAttrs(["character_name", "favorill"]);
+		// FEAT DIE LOGIC AND OUTPUT
+		clog(`Favoured test 1: ${!!(favId == 2)}`);
+		favStr = favId == 2 ? "2d12kh1-1" : ( favId == 0 ? "2d12kl1-1" : "1d12-1" );
+		clog(`Favoured string: ${favStr}`);
+		favOutput =  favId == 2 ? "{{favoured=Favoured}}" : ( favId == 0 ? "{{favoured=Ill-favoured}}" : "" );
+		clog(`Favoured output: ${favOutput}`);
+	
+		let modStr = modifiers == 0 ? "" : (modifiers > 0 ? `{{modification=+${modifiers}}}` : `{{modification=${modifiers}}}`);
+
+        const attrs = await asw.getAttrs(["character_name", "favorill", "weary", "miserable"]);
         //const charname = attrs.character_name,
-        //    favill = int(attrs.favourill),
-		//	skillfav = int(attrs[rollname+'_favoured']);
+        // favill = int(attrs.favourill),
+		// skillfav = int(attrs[rollname+'_favId']);
+		let weary = 
+
+		// SUCCESS DICE LOGIC
 		successdice = int(dice) + int(modifiers); 
 		successdice = successdice < 0 ? 0 : successdice;
         successStr = `${successdice}d6`;
-		clog(`Character: ${char}, Base dice: ${successdice}, base string ${successStr}, modifiers: ${modifiers}, target: ${tn}, favill ${favill}, favoured ${favoured}, skill favoured: ${act_fav}`);
-        //for(let i = 1; i <= base; i++) { successStr += "[[1d6]] "; }
 
-        rollBase = `&{template:tor} {{character-name=${char} }} {{roll-name=${act} }} {{favour=[[0]]}} {{total=[[0]]}} {{diff=[[0]]}} {{greatness=[[0]]}} {{passthroughdata=[[0]]}} {{outcome=[[0]]}} {{feat=[[${favoured}]]}} {{feat1=[[1d12]]}} {{feat2=[[1d12]]}} {{r1=[[ ${successStr} ]] }} {{target=${tn} }} ${modStr} {{skill-fav=${act_fav} }}`;
+		//LOG 
+		clog(`Character: ${char}, Base dice: ${successdice}, base string ${successStr}, modifiers: ${modifiers}, target: ${tn}, favill ${favill}, favoured ${favStr}, skill favoured: ${act_fav}`);
+
+		// START ROLL
+        rollBase = `&{template:tor} {{character-name=${char} }} {{roll-name=${act} }} {{favour=[[0]]}} {{total=[[0]]}} {{diff=[[0]]}} {{greatness=[[0]]}} {{passthroughdata=[[0]]}} {{outcome=[[0]]}} {{feat=[[${favStr}]]}} {{feat1=[[1d12]]}} {{feat2=[[1d12]]}} {{r1=[[ ${successStr} ]] }} {{target=${tn} }} ${favOutput} ${modStr} {{skill-fav=${act_fav} }}`;
         let rollresult = await startRoll(rollBase),
         	rollSuccess = int(rollresult.results.r1.result),
 			rollFeat = int(rollresult.results.feat.result),
@@ -853,29 +869,9 @@
 		const rollDiff = rollTotal - int(tn);
 		clog(`rollSuccess: ${rollSuccess}, Feat1: ${rollFeat1}, RollFeat2: ${rollFeat2}, rollTotal: ${rollTotal}, Target Number: ${tn}, Diff: ${rollDiff}`);
 
-		// FAVOURED LOGIC HERE
-		let favId = "";
-		switch (true) {
-			case favoured === "2d12kh1" && act_fav === "1" :
-				favId = 2;
-				break;
-			case favoured === "2d12kh1" && act_fav === "0" :
-				favId = 2;
-				break;
-			case favoured === "2d12kl1" && act_fav === "1" :
-				favId = 1;
-				break;
-			case favoured === "2d12kl1" && act_fav === "0" :
-				favId = 0;
-				break;
-			default :
-				favId = 1; 
-				break;
-		}
-		//favoured === '2d12kh1' ? favId = 2 : (favoured === '2d12kl1' ? favId = 0 : favid = 1);
-
 		// GREATNESS LOGIC
 		let outcome = rollTotal >= tn ? "Success!" : "Failure!";
+		// count number of 6s and 1s in success
 
 		// MISERALBE LOGIC?
 
@@ -900,7 +896,7 @@
 
 		rollData.total = rollTotal; 
 		rollData.diff = rollDiff;
-		rollData.favour = favId; 
+		rollData.favoured = favOutput; 
 		rollData.outcome = outcome;
 		console.log('Roll data: ' + JSON.stringify(rollData));
 
@@ -998,16 +994,11 @@
 		});
 	});
 });
-    on("change:weary sheet:opened", function() {
+// Replace with a foreach to cover all changeable attributes. 
+ on("change:weary sheet:opened", function() {
 	getAttrs(["weary"], function(values) {
 		let weary = values.weary||0;
-		if (weary == 0) {
-			wearytype = "normal";
-		}
-		else {
-			wearytype = "weary";
-		}
-
+		wearytype = weary == 0 ? "normal" : "weary";
 		setAttrs({
 			wearytype: wearytype,
 		});
@@ -1016,13 +1007,7 @@
     on("change:awe_favoured sheet:opened", function() {
 	getAttrs(["awe_favoured"], function(values) {
 		let faved = values.awe_favoured||0;
-		if (faved == 0) {
-			favtype = 0;
-		}
-		else {
-			favtype = 1;
-		}
-
+		favtype = faved == 0 ? "normal" : "favoured"; 
 		setAttrs({
 			awe_fav: favtype,
 		});
@@ -1032,6 +1017,7 @@
     on("change:athletics_favoured sheet:opened", function() {
 	getAttrs(["athletics_favoured"], function(values) {
 		let faved = values.athletics_favoured||0;
+		favtype = faved
 		if (faved == 0) {
 			favtype = "normal";
 		}
@@ -1351,41 +1337,42 @@
     </div>
 </rolltemplate>
 <rolltemplate class="sheet-rolltemplate-tor">
-    <div class="sheet=pc">
-		<rolltemplate class="sheet-rolltemplate-custom">
-			<div class="sheet-container sheet-color-{{color}}">
-				<div class="sheet-header">
-				  {{#character-name}}<div class="sheet-title">{{character-name}}</div>{{/character-name}}
-				  {{#roll-name}}<div class="sheet-subtitle">{{roll-name}}</div>{{/roll-name}}
-				</div>
-			<div class="sheet-container">
-				<div class="full-col center die-title">Target Number</div>
-				<div class="full-col center die-result"><span>{{target}}</span></div>
-				<div class="half-col die-title">Feat</div>
-				<div class="half-col die-title">Success</div>
-				<div class="half-col die-result">{{feat}}</div>
-				<div class="half-col die-result">{{r1}}</div>
-				<div class="half-col die-comment">{{favoured}}</div>
-				<div class="half-col die-comment">{{#modification}}{{/modification}}</div>
-				<div class="full-col center die-result">{{computed::total}}</div>
-				<div class="full-col center die-title">Total</div>
-				<div class="full-col center die-result">{{computed::diff}}</div>
-				<div class="full-col center die-title">Diff</div>
-				<div class="full-col center die-title">{{computed::outcome}}</div>
+	<div class="sheet-container sheet-color-{{color}}">
+		<div class="sheet-header">
+			{{#character-name}}<div class="sheet-title charname text-center">{{character-name}}</div>{{/character-name}}
+			{{#roll-name}}<div class="sheet-subtitle rollname text-center">{{roll-name}}</div>{{/roll-name}}
+		</div>
+		<div class="sheet-content">
+			<div class="full-col center die-title target-number">Target Number</div>
+			<div class="full-col center die-result target-number"><span class="rotated-box"><span class="die-result">{{target}}</span></span></div>
+			<div class="half-col die-title feat-label">Feat</div>
+			<div class="half-col die-title success-label">Success</div>
+			{{#rollWasCrit() feat}}<div class="half-col die-result feat-die"><span class="rotated-box fullcrit">{{feat}}</span><span class="gandalf"></span></div>{{/rollWasCrit() feat}}
+			{{#rollWasFumble() feat}}<div class="half-col die-result feat-die"><span class="rotated-box fullfail">{{feat}}</span><span class="eye"></span></div>{{/rollWasFumble() feat}}
+			{{#rollBetween() feat 1 10}}<div class="half-col die-result feat-die"><span class="rotated-box">{{feat}}</span></div>{{/rollBetween() feat 1 10}}
+			<div class="half-col die-result success-die"><span class="rotated-box">{{r1}}</span></div>
+			<div class="half-col die-comment favoured">
+				{{#favoured}}{{favoured}}{{/favoured}}
 			</div>
-			<div class="sheet-content">
-				<div class="sheet-key">Roll total</div>
-				<div class="sheet-value">{{computed::total}}</div>
-				<div class="sheet-key">Roll diff</div>
-				<div class="sheet-value">{{computed::diff}}</div>
-				<div class="sheet-key">Favour</div>
-				<div class="sheet-value">{{computed::favour}}</div>
-				{{#allprops() character-name roll-name favour total diff feat1 feat2}}
-				<div class="sheet-key">{{key}}</div>
-				<div class="sheet-value">{{value}}</div>
-				{{/allprops() character-name roll-name favour total diff feat1 feat2}}
-				{{#desc}}<div class="sheet-desc">{{desc}}</div>{{/desc}}
-			  </div>
-			</div>
-		  </rolltemplate>
+			<div class="half-col die-comment modification">{{#modification}}Bonus {{modification}}{{/modification}}</div>
+			<div class="full-col center die-result roll-total"><span class="rotated-box">{{computed::total}}</span></div>
+			<div class="full-col center die-title roll-total">Total</div>
+			<div class="full-col center die-result roll-diff"><span class="rotated-box">{{computed::diff}}</span></div>
+			<div class="full-col center die-title roll-diff">Diff</div>
+			<div class="full-col center die-title roll-outcome">{{computed::outcome}}</div>
+		</div>
+		<!-- <div class="sheet-extra">
+			<div class="sheet-key">Roll total</div>
+			<div class="sheet-value">{{computed::total}}</div>
+			<div class="sheet-key">Roll diff</div>
+			<div class="sheet-value">{{computed::diff}}</div>
+			<div class="sheet-key">Favour</div>
+			<div class="sheet-value">{{computed::favour}}</div>
+			{{#allprops() character-name roll-name favour total diff feat1 feat2}}
+			<div class="sheet-key">{{key}}</div>
+			<div class="sheet-value">{{value}}</div>
+			{{/allprops() character-name roll-name favour total diff feat1 feat2}}
+			{{#desc}}<div class="sheet-desc">{{desc}}</div>{{/desc}}
+		</div> -->
+	</div>
 </rolltemplate>
