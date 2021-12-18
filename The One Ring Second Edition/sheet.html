@@ -730,8 +730,11 @@
 				<input name="attr_injury" type="text">
 			</div>
 
-			<div class="sheet-row table-rolls-block">
-				<h3>Roll Types</h3>
+			<div class="sheet-row rolltypes">
+				<label class="h3 oneh">Roll Types</label>
+				<span class="label">Parsed rolls</span>
+				<div class="sheet-hover-info" data-i18n="parsedroll-description">When enabled the dice rolls will be parsed and calculated, with output displayed in a rolltemplate. This removes the need for roll tables. </div>
+				<input type="checkbox" name="attr_parsedrolls" value="1" id="config_parsedrolls" />
 			</div>
 			<div class="sheet-row table-rolls-block">
 				<input name="attr_favorill" type="radio" value="{1t[feat]}">

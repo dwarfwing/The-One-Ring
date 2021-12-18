@@ -648,6 +648,16 @@ div.armour div.sheet-row {
 .right-pane .conditions input[type="checkbox"] {
 	margin-top: 8px;
 }
+.right-pane .rolltypes {
+	margin-bottom: 12px;
+}
+.right-pane .rolltypes input[type="checkbox"] {
+	display: flex;
+	align-self: flex-end; 
+}
+.right-pane .rolltypes .sheet-hover-info {
+	margin-top: 45px;
+}
 
 .skills-row .sheet-row,
 .combatprofs .sheet-row {
