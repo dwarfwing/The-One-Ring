@@ -5,10 +5,25 @@
 	font-weight: normal;
 	font-style: normal;
 }
+@font-face {
+    font-family: 'NanumSquareRound';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {font-family: "AnironOwf"; 
+	src: url("//db.onlinewebfonts.com/t/767cb11dc1ee01154718463adc3a1d1e.eot"); 
+	src: url("//db.onlinewebfonts.com/t/767cb11dc1ee01154718463adc3a1d1e.eot?#iefix") format("embedded-opentype"), 
+	url("//db.onlinewebfonts.com/t/767cb11dc1ee01154718463adc3a1d1e.woff2") format("woff2"), 
+	url("//db.onlinewebfonts.com/t/767cb11dc1ee01154718463adc3a1d1e.woff") format("woff"), 
+	url("//db.onlinewebfonts.com/t/767cb11dc1ee01154718463adc3a1d1e.ttf") format("truetype"), 
+	url("//db.onlinewebfonts.com/t/767cb11dc1ee01154718463adc3a1d1e.svg#Aniron") format("svg"); 
+}
 
 * {
     font-family: "Aniron", "Palatino Linotype", "Book Antiqua", Palatino, serif, sans-serif;
     font-weight: normal;
+	line-height: 1;
 }
 
 .ui-dialog .ui-dialog-title .ui-dialog-title,
@@ -47,17 +62,15 @@
 }
 
 span{
-	color: black !important;
+	color: black;
 }
 
 .characterviewer label, 
 label {
-	color: black !important;
+	color: black;
     margin-bottom: 0;
-    -display: inline !important;
     line-height: 26px;
-    -padding: 0 !important;
-	font-size: 0.75em;
+	font-size: 10px;
 }
 
 .charsheet .sheet-pod {
@@ -70,7 +83,7 @@ label {
     text-align: center !important;
 }
 
-h2 {
+h2, .characterviewer label.h2 {
     font-size: 16px;
     font-weight: bold;
     text-align: center;
@@ -79,8 +92,8 @@ h2 {
     margin-top: 36px;
 	color: #AC4637; 
 }
-h3 {
-    font-size: 14px;
+h3, label.h3 {
+    font-size: 13px;
     font-weight: bold;
     text-align: center;
     margin-top: 18px;
@@ -89,7 +102,8 @@ h3 {
 }
 .label,
 label {
-	font-size: 0.75em;
+	font-size: 10px;
+	color: #111;
 }
 
 button[type=roll],
@@ -135,13 +149,20 @@ textarea:focus {
     background: rgba(255,255,255,1);
 }
 
+.ui-dialog .charsheet .sheet-row {
+	display: flex;
+	justify-content:center;
+}
+
+.ui-dialog .charsheet input[type="number"],
 input[type="text"],
 input[type="number"],
 input.sheet-number {
     background: none !important;
     border-radius: 0;
     border-bottom: 2px solid rgba(0,0,0,.15);
-	text-align: center !important;
+	text-align: center;
+	width: 35px;
 }
 
 input.sheet-number {
@@ -166,7 +187,7 @@ input[type="text"],
 textarea {
     /*width: 100%;*/
 	font-family: "Book Antiqua", "Palatino Linotype", Palatino, serif, sans-serif;
-	font-size: 1em;
+	font-size: 14px;
 }
 
 input[type="checkbox"]:checked {
@@ -194,9 +215,24 @@ textarea {
     text-align: left !important;
 }
 
-.oneh { width: 48%; }
-.oneq { width: 24%; }
-.threeq { width: 24%; }
+input.config-parsed-rolls ~ div .parsed-rolls,
+input.config-parsed-rolls:checked ~ div .table-rolls,
+input.config-parsed-rolls:checked ~ div .table-rolls-block {
+	display: none;
+}
+input.config-parsed-rolls ~ div .table-rolls,
+input.config-parsed-rolls:checked ~ div .parsed-rolls {
+	display: flex;
+}input.config-parsed-rolls ~ div .table-rolls-block {
+	display: block;
+}
+label.parsed-rolls {
+	cursor: pointer;
+}
+
+.oneh { width: 48%; min-width: 48%; }
+.oneq { width: 24%; min-width: 24%; }
+.threeq { width: 73%; min-width: 73%; }
 .row1 { grid-row: 1; }
 .row2 { grid-row: 2; }
 .row3 { grid-row: 3; }
@@ -234,6 +270,19 @@ textarea {
 .sheetgrid-cols1-2 { grid-column: 1/3; }
 .sheetgrid-cols1-3 { grid-column: 1/4; }
 .sheetgrid-cols1-4 { grid-column: 1/5; }
+
+.center {
+	text-align: center;
+	justify-content: center;
+	justify-self: center;
+	justify-items: center;
+}
+.left {
+	text-align: left;
+	justify-content: left;
+	justify-self: left;
+	justify-items: left;
+}
 
 .vertical-redbg
 .vertical-spacer {
@@ -287,11 +336,22 @@ div.name {
 	border: 6px double #AC4637;
 	background-color: white; 
 }
+div.name span{
+	font-size: 13px; 
+}
+div.name input[type="text"] {
+	font-size: 15px; 
+}
 .mid-pane-hspacer {
 	background-image: url('https://singlecolorimage.com/get/AC4637/10x10'); 
 	background-repeat: no-repeat;
 	background-size: 5px 100%;
 	background-position-x: center;
+}
+.right-pane {
+	margin-left: 10px;
+	display: flex;
+	justify-content: center;
 }
 
 div.strength-column,
@@ -300,6 +360,8 @@ div.heart-column {
 	padding-left: 10px;
 	padding-right: 20px;
 	box-sizing: border-box;
+	align-items: flex-start;
+	align-content: flex-start;
 }
 div.strength-column,
 div.heart-column {
@@ -307,28 +369,43 @@ div.heart-column {
 	border-width: 97%;
 }
 
+div.info div *,
+div.info div div * {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: center;
+	width: 100%;
+	box-sizing: border-box;
+}
+div.info .sheet-col {
+	display: flex !important;
+	flex-wrap: wrap;
+	margin: 0 10px;
+}
 div.info span.label,
 div.info label {
-	margin: 2px; 
 	text-align: left;
-	font-size: 0.9em;
+	-font-size: 10px;
+	margin-top: 9px;
+	text-align: left;
+	justify-content: unset;
 }
 div.info input[type="text"] {
-	margin: 2px; 
 	min-width: 98%;
+	padding: 6px 4px 0 4px;
 }
 div.info .age,
 div.info input[type="text"].age {
-	margin: 2px; 
 	min-width: 23%;
+	width: 23%;
 }
 div.info .livingstandard,
 div.info input[type="text"].livingstandard {
-	margin: 2px; 
 	min-width: 73%;
+	width: 73%;
+    margin-left: 5px;
 }
 div.info input[type="number"] {
-	margin: 2px;
 	min-width: 23%;
 }
 
@@ -347,10 +424,10 @@ div.skill-header {
 }
 div.row2.skill-header {
 	margin-top: 3px;
-	margin-bottom: 17px;
+	margin-bottom: 10px;
 }
 div.row4.skill-header {
-	margin-top: 17px;
+	margin-top: 10px;
 	margin-bottom: 3px;
 }
 div.skill-header h3 {
@@ -363,11 +440,33 @@ div.skill-header span {
 	width: 100%; 
 }
 div.additional-row { 
-	min-height: 230px; 
-	height: 230px;
+	-min-height: 230px; 
+	-height: 230px;
 }
-div.additional-row h3 {
-	margin-top: 6px;
+div.additional-row h3,
+div.weapons h3 {
+	margin-top: 0px;
+	margin-bottom: 6px;
+}
+div.additional-row.virtues, 
+div.additional-row.rewards {	
+	display: contents !important;
+}
+div.additional-row .virtues,
+div.additional-row .rewards {
+	flex-wrap: nowrap;
+    display: flex !important;
+    float: right;
+    align-items: center;
+    justify-self: center;
+}
+div.additional-row .virtues *,
+div.additional-row .rewards * {
+	margin-right: 7px;
+}
+div.additional-row textarea {
+	min-height: 75px;
+	height: 75px;
 }
 
 div.sheet-row.attribute {
@@ -376,6 +475,7 @@ div.sheet-row.attribute {
 	grid-template-rows: 100px 100px;
 	justify-content: center;
 	width: 100%;
+	margin-left: -5px;
   }
 
   div.sheet-row.attribute span {
@@ -391,7 +491,7 @@ div.sheet-row.attribute {
 	width: 50px;
 	height: 50px;
 	padding: 1px;
-	font-size: 3em;
+	font-size: 38px;
 	border: 0;
 	margin-top: 90px;
 	margin-left: 100px;
@@ -415,7 +515,7 @@ div.sheet-row.attribute {
 	width: 50px;
 	height: 25px;
 	padding: 1px;
-	font-size: 2em;
+	font-size: 24px;
 	border: 0;
   }
   div.sheet-row.attribute span.secondary-attribute::before {
@@ -473,24 +573,80 @@ div.sheet-row.attribute {
   }
   
 
-.sheet-endurance, .sheet-hope, .sheet-armour {
-    display: inline-block;
+.armour {
+    display: flex;
+	flex-wrap: nowrap;
+	margin-left: 20px;
 }
-.sheet-endurance tr td:nth-child(2),
-.sheet-hope tr td:nth-child(2),
+div.armour div.sheet-row {
+	display: flex !important;
+	flex-wrap: nowrap;
+}
+.armour span {
+	display: flex;
+	flex-wrap: nowrap;
+	margin-top: 25px;
+}
+.mount span {
+	display: flex;
+	flex-wrap: nowrap;
+}
+.armour input,
+.mount-input input {
+	margin-left: 5px;
+}
+.armour input[type="text"] {
+	text-align: left;
+	text-indent: 4px;
+	width: 48%;
+	min-width: 48%;
+}
+.mount-input input[type="text"] {
+	
+}
+.armour button {
+	float: right; 
+	align-self: flex-start;
+	margin-top: -7px !important;
+}
 .sheet-armour tr td:nth-child(2) {
     padding-left: 5px;
     padding-right: 5px;
 }
 
-.sheet-endurance {
-    width: 41%;
+.right-pane .sheet-row {
+	display: flex;
+	flex-wrap: nowrap;
 }
-.sheet-hope {
-    width: 38%;
+.right-pane label.h3 {
+	width: unset;
+	height: 28px;
+	margin-top: 22px;
+	margin-bottom: -8px;
+	color: #AC4637;
 }
-.sheet-armour {
-    width: 20%;
+.right-pane .endurance label.h3 + input[type="number"],
+.right-pane .hope label.h3 + input[type="number"] {
+	font-size: 16px;
+}
+.right-pane label,
+.right-pane span {
+	display: flex;
+	justify-self: left;
+	align-self: flex-end;
+}
+.right-pane input[type="number"] {
+    max-width: 23%;
+	display: flex;
+	justify-self: right;
+	align-self: flex-end;
+	height: 28px;
+}
+.right-pane .injury input[type="text"] {
+	width: 73%;
+}
+.right-pane .conditions input[type="checkbox"] {
+	margin-top: 8px;
 }
 
 .skills-row .sheet-row,
@@ -515,11 +671,21 @@ div.sheet-row.attribute {
 .combatprofs .sheet-row .label,
 .skills-row .sheet-row label,
 .combatprofs .sheet-row label {
-	display: flex;
+	-display: flex;
 	text-align: left;
 	align-self: center; 
 	width: 100%;
 	flex: 1; 
+	line-height: 21px;
+	font-size: 10px;
+}
+.skills-row button[type="action"],
+.additional-row button[type="action"],
+.armour button {
+	height: 18px;
+    padding: 2px 3px;
+    font-size: 13px;
+    margin: 0px 3px 0px 3px;
 }
 
 /*
@@ -545,18 +711,18 @@ input[type='radio'] {
 
 .sheet-dots input[type='radio'] {
     opacity: 0;
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     position: relative;
     -top: 5px;
-    -left: 6px;
+    left: -4px;
     margin: -10px;
     cursor: pointer;
     z-index: 1;
 	transform: rotate(45deg);
 }
 .sheet-dots input[type="radio"] + span {
-	margin: 5px 3px 0px -5px;
+	margin: 5px 5px 0px -5px;
     line-height: 5px;
     font-size: 7px;
 	transform: rotate(45deg);
@@ -565,13 +731,13 @@ input[type='radio'] {
 input[type="radio"] + span::before
 {
     margin-right: 4px;
-	margin-top: -5px;;
+	-margin-top: -5px;;
     text-align: center;
-    display: inline-block;
-    vertical-align: middle;
+    display: inline-flex;
+    -vertical-align: middle;
     line-height: 10px;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     content: "";
     opacity: 1;
 	transform: rotate(45deg);
@@ -583,6 +749,7 @@ input[type="radio"][value="0"] + span:before {
 	opacity: 0.3;
 	border: 0.5px solid #AC4637;
 	border-radius: 50%;
+	margin-right: 8px;
 }
 .sheet-dots input[type='radio']:checked ~ input[type='radio'] + span:before {
     -background: url("https://raw.githubusercontent.com/Roll20/roll20-character-sheets/master/The%20One%20Ring/assets/images/square-empty.png") no-repeat;
@@ -618,7 +785,7 @@ input[type="radio"]:checked ~ input[type="radio"] + span::before
     box-shadow: 0 3px 15px rgba(0,0,0,.1);
     transition:visibility 0s linear 0.3s, opacity 0.3s linear;
     text-align: left;
-	font-size: 0.8em;
+	font-size: 10px;
 }
 .sheet-hover-info.sheet-margin-left-140px {
     margin-left: -140px;
@@ -629,11 +796,18 @@ input[type="radio"]:checked ~ input[type="radio"] + span::before
 }
 
 span.label:hover + .sheet-hover-info,
+label.label:hover + .sheet-hover-info,
 span.sheet-label:hover + .sheet-hover-info,
 input:hover + span.sheet-label + .sheet-hover-info {
     visibility: visible;
     opacity: 1;
     transition-delay: 1s;
+}
+
+div.treasure div.sheet-row,
+div.treasure div.sheet-row span,
+div.treasure div.sheet-row input {
+	display: flex;
 }
 
 div.avatar-img {
@@ -677,7 +851,8 @@ div.weapons-grid {
 		width: 150px;
 	}	
 	div.weapons-grid input.weapon-cell{
-		font-size: 0.9em;
+		-font-size: 11px;
+		text-align: left;
 	}
 	div.weapons-grid .damage-cell {
 		width: 100%;
@@ -881,10 +1056,12 @@ div.weapons-grid {
 
 .sheet-rolltemplate-tor {
 	margin-left: -37px;
+	padding-top: 10px;
+	background: transparent;
   }
   .sheet-rolltemplate-tor * {	  
-    font-family: 'AnorinFace', 'Book Antiqua', 'Palatino', serif, sans-serif;
-    font-weight: normal;
+    font-family: AnironOwf, AnorinFace, Aniron, Papyrus, 'Book Antiqua', Palatino, serif, sans-serif;
+    font-weight: bold;
   }
   .withoutavatars .sheet-rolltemplate-tor {
 	margin-left: -7px;
@@ -898,7 +1075,7 @@ div.weapons-grid {
 	-margin-bottom: -35px;
   }
   .sheet-rolltemplate-tor .sheet-content {
-	height: 18em;
+	height: 250px;
   }
   /* Header formatting - title and subtitle */
   .sheet-rolltemplate-tor .sheet-header {
@@ -909,13 +1086,17 @@ div.weapons-grid {
 	padding: 5px;
   }
   .sheet-rolltemplate-tor .sheet-title {
-	font-size:1.1em;
+	font-size: 15px;
   }
   .sheet-rolltemplate-tor .sheet-subtitle {
-	font-size:.9em;
+	font-size: 14px;
   }
   .sheet-rolltemplate-tor .sheet-subtitle2 {
-	font-size:.9em;
+	font-size: 13px;
+  }
+  .sheet-rolltemplate-tor span,
+  .sheet-rolltemplate-tor div {
+	font-size: 13px;
   }
   .sheet-rolltemplate-tor .sheet-text-center {
 	text-align: center;
@@ -970,7 +1151,7 @@ div.weapons-grid {
 	width: 30px;
 	height: 30px;
 	background-color: transparent;
-	font-weight: normal;
+	-font-weight: normal;
 	transform: rotate(-45deg);
 	border: 0; 
  }
@@ -1013,19 +1194,19 @@ div.weapons-grid {
  }
  .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span,
  .sheet-rolltemplate-tor div.sheet-success-die span.sheet-rotated-box span {
-	font-size: 1.5em;
+	font-size: 20px;
  }
  .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span.fullcrit,
- .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span.fullfail
- .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span.gandalf,
- .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span.eye {
+ .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span.fullfail,
+ .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span.sheet-gandalf,
+ .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box span.sheet-eye {
 	opacity: 0;
  }
  .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box.sheet-fullcrit {
 	 right: -4px;
  }
  .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box.sheet-fullfail {
-	 right: -4px;
+	 right: -20px;
  }
  .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box.sheet-fullcrit + span.sheet-gandalf,
  .sheet-rolltemplate-tor div.sheet-feat-die span.sheet-rotated-box.sheet-fullfail + span.sheet-eye {
@@ -1049,17 +1230,18 @@ div.weapons-grid {
 	background-image: url('https://raw.githubusercontent.com/dwarfwing/The-One-Ring/main/The%20One%20Ring%20Second%20Edition/images/eye2.png');
  }
 
- .sheet-rolltemplate-tor .sheet-feat-label,
-  .sheet-rolltemplate-tor .sheet-success-label {
+.sheet-rolltemplate-tor .sheet-feat-label {
 	position: relative;
 	top: -20px;
-  }
- .sheet-rolltemplate-tor .sheet-feat-label {
-	 right: 17px;
- }
- .sheet-rolltemplate-tor .sheet-success-label {
-	left: 25px;
- }
+	right: 26px;
+}
+.sheet-rolltemplate-tor .sheet-success-label {
+	position: relative;
+	top: -35px;
+	margin-bottom: -18px;
+	text-align: end;
+	left: 12px;
+}
 .sheet-rolltemplate-tor .sheet-favoured,
 .sheet-rolltemplate-tor .sheet-modification {
 	position: relative;
@@ -1083,11 +1265,21 @@ div.weapons-grid {
  .sheet-rolltemplate-tor .sheet-roll-outcome {
 	position: relative;
 	top: -46px;
+	background-color: #AC4637;
+	border: 2px solid #AC4637;
+	color: #FFF;
+	display: flex;
+	align-self: center;
+	width: fit-content;
+	text-align: center;
+	padding: 3px;
  }
  .sheet-rolltemplate-tor .sheet-roll-outcome span {
-	 background-color: #AC4637;
-	 border: 2px solid #AC4637;
-	 color: #EEE;
+	 display: flex;
+	 align-self: center;
+	 background-color: transparent;
+	 border: 0;
+	 padding: 0;
  }
 
 

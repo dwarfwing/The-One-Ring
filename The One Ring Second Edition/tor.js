@@ -65,8 +65,8 @@
         }
     }
 
-    // Primary Roll, triggered from sheet
-    const rollFirst = async (char, act, dice, tn, act_fav, favill) => {
+    // ROLL FROM ACTION BUTTONS, FUNCTIONS BELOW
+    const rollFirst = async (char, act, dice, tn, act_fav, favill, rolltype) => {
 		
 		let favId = 1,
 			favStr = "1d12",
@@ -74,86 +74,74 @@
 			modifiers = 0,
 			successdice = 0,
 			successStr = "",
-			rollBase = "";
+			rollBase = "",
+			successDegree = 0;
 
-        // We'll pretend we've done a getAttrs on the attacker's weapon for all the required values
-        // Row ID's must be provided when using action buttons too, we'll skip all of that here though
-		//var evname = ev.htmlAttributes.name;
-        //clog(`First event: ${JSON.stringify(ev)}`);
-        //clog(`Event name: ${ev.htmlAttributes.name}`);
-        //clog(`Event name: ${evname}`);
-        //const rollname = (ev.htmlAttributes.name).slice(4); 
-		act = act.charAt(0).toUpperCase() + act.slice(1);
+		act = act.charAt(0).toUpperCase() + act.slice(1); // Capitalise the action
         clog(`Character name: ${name}, Roll name: ${act}, Target number: ${tn}, favoured: ${act_fav}, Favour-ill: ${favill}`);
 
-		// GET MODIFIER HERE
-		if (act_fav === "1") {
+		// GET MODIFIER AND FAVOURED HERE
+		if (rolltype === "protection") {
+			tn = await getQuery(`?{Injury rating of weapon (Target number)?|0}`);
+		}
+		if (act_fav === "1" || act_fav === "on") {
 			favId = await getQuery(`?{Favoured?| Favoured,2 | Normal,1 | Ill-favoured,0}`);
 		} else {
 			favId = await getQuery(`?{Favoured?| Normal,1 | Favoured,2 | Ill-favoured,0}`);
 		}
-		clog(`Favoured test 1: ${!!(favId === 2)}`);
-		favStr = favId === 2 ? "2d12kh1" : ( favId === 0 ? "2d12kl1" : "1d12" );
-		clog(`Favoured string: ${favStr}`);
-		favOutput =  favId === 2 ? "{{favoured=Favoured}}" : ( favId === 0 ? "{{favoured=Ill-favoured}}" : "" );
-		clog(`Favoured output: ${favOutput}`);
 		modifiers = await getQuery(`?{Modifiers?|0}`);
-		let modStr = modifiers === 0 ? "" : `{{modification=${modifiers}}}`;
+		let modStr = modifiers == 0 ? "" : (modifiers > 0 ? `{{modification=+${modifiers}}}` : `{{modification=${modifiers}}}`);
 
-        //const attrs = await asw.getAttrs(["character_name", "favorill"]);
+		// FEAT DIE LOGIC AND OUTPUT
+		//clog(`Favoured test 1: ${!!(favId == 2)}`);
+		favStr = favId == 2 ? "2d12kh1-1" : ( favId == 0 ? "2d12kl1-1" : "1d12-1" );
+		//clog(`Favoured string: ${favStr}`);
+		favOutput =  favId == 2 ? "{{favoured=Favoured}}" : ( favId == 0 ? "{{favoured=Ill-favoured}}" : "" );
+		//clog(`Favoured output: ${favOutput}`);
+
+		// ATTRIBUTES
+        const attrs = await asw.getAttrs(["character_name", "favorill", "weary", "miserable"]);
         //const charname = attrs.character_name,
-        //    favill = int(attrs.favourill),
-		//	skillfav = int(attrs[rollname+'_favoured']);
+        // favill = int(attrs.favourill),
+		// skillfav = int(attrs[rollname+'_favId']);
+		let weary = 
+
+		// SUCCESS DICE LOGIC
 		successdice = int(dice) + int(modifiers); 
 		successdice = successdice < 0 ? 0 : successdice;
         successStr = `${successdice}d6`;
-		clog(`Character: ${char}, Base dice: ${successdice}, base string ${successStr}, modifiers: ${modifiers}, target: ${tn}, favill ${favill}, favoured ${favoured}, skill favoured: ${act_fav}`);
 
-        rollBase = `&{template:tor} {{character-name=${char} }} {{roll-name=${act} }} {{favour=[[0]]}} {{total=[[0]]}} {{diff=[[0]]}} {{greatness=[[0]]}} {{passthroughdata=[[0]]}} {{outcome=[[0]]}} {{feat=[[${favoured}]]}} {{feat1=[[1d12]]}} {{feat2=[[1d12]]}} {{r1=[[ ${successStr} ]] }} {{target=${tn} }} ${favOutput} ${modStr} {{skill-fav=${act_fav} }}`;
+		//LOG 
+		clog(`Character: ${char}, Base dice: ${successdice}, base string ${successStr}, modifiers: ${modifiers}, target: ${tn}, favill ${favill}, favoured ${favStr}, skill favoured: ${act_fav}`);
+
+		// START ROLL
+        rollBase = `&{template:tor} {{character-name=${char} }} {{roll-name=${act} }} {{total=[[0]]}} {{diff=[[0]]}} {{greatness=[[0]]}} {{passthroughdata=[[0]]}} {{outcome=[[0]]}} {{feat=[[${favStr}]]}} {{feat1=[[1d12]]}} {{feat2=[[1d12]]}} {{r1=[[ ${successStr} ]] }} {{target=${tn} }} ${favOutput} ${modStr} {{skill-fav=${act_fav} }}`;
         let rollresult = await startRoll(rollBase),
         	rollSuccess = int(rollresult.results.r1.result),
-			rollFeat = int(rollresult.results.feat.result),
         	rollFeat1 = int(rollresult.results.feat1.result),
-        	rollFeat2 = int(rollresult.results.feat2.result);
+        	rollFeat2 = int(rollresult.results.feat2.result),
+			rollFeat = int(rollresult.results.feat.result);
 
+		clog(`Roll result results I: ${JSON.stringify(rollresult.results)}`);
 		let rollTotal = rollSuccess + rollFeat; 
 		const rollDiff = rollTotal - int(tn);
 		clog(`rollSuccess: ${rollSuccess}, Feat1: ${rollFeat1}, RollFeat2: ${rollFeat2}, rollTotal: ${rollTotal}, Target Number: ${tn}, Diff: ${rollDiff}`);
 
-		// FAVOURED LOGIC HERE
-		/*let favId = "";
-		clog(`Case 1: ${!!(favoured === "2d12kh1")}`);
-		clog(`Case 2: ${!!(favoured === "2d12kl1")}`);
-		clog(`Case 3: ${!!(act_fav == 0)}`);
-		clog(`Case 4: ${!!(act_fav == 1)}`);
-		switch (true) {
-			case favoured === "2d12kh1" && act_fav == 1 :
-				favoured = 2;
-				break;
-			case favoured === "2d12kh1" && act_fav == 0 :
-				favId = 2;
-				break;
-			case favoured === "2d12kl1" && act_fav == 1 :
-				favId = 1;
-				break;
-			case favoured === "2d12kl1" && act_fav == 0 :
-				favId = 0;
-				break;
-			default :
-				favId = 1; 
-				break;
-		}
-		*/
-		//favoured === '2d12kh1' ? favId = 2 : (favoured === '2d12kl1' ? favId = 0 : favid = 1);
-
 		// GREATNESS LOGIC
 		let outcome = rollTotal >= tn ? "Success!" : "Failure!";
+		// count number of 6s in success, great or outstanding success
+		clog(`Roll base r1 rolls: ${JSON.stringify(rollresult.results.r1.dice)}`);
+		successDegree = outcome === "Success!" ? _.reduce(rollresult.results.r1.dice, (memo, num) => { if(num == 6) {return ++memo} else {return memo} }, 0) : 0;
+		clog(`Calculated degree of success: ${successDegree}`);		
 
-		// MISERALBE LOGIC?
+		// FEAT DIE LOGIC
+		// If feat die = 11 then automatically success
+		// 1s12-1 already covers for Eye side = 0
+		outcome = rollFeat == 11 ? "Feat Success!" : outcome; 
 
+		// MISERALBE AND WEARY LOGIC?
 
 		// Storing all the passthrough data required for the next roll in an Object helps for larger rolls
-        clog(`Roll result results I: ${JSON.stringify(rollresult.results)}`);
 		//rollresult.results.difference.result = rollDiff; 
 		//rollresult.results.passthroughdata = "This is a test";
         clog(`Roll result results II: ${JSON.stringify(rollresult.results)}`);
@@ -163,20 +151,17 @@
 		//clog(`Roll data: ${rollEscape.escape(rollData)}`);
         // Storing all the passthrough data required for the next roll in an Object helps for larger rolls
 
-		//let downRoll = rollresult.results.roll1mod.result;
-		//let origRoll = rollresult.results.r1.result;
-		//let dieRoll = rollresult.results.r1.dice[0];
-		//console.log(dieRoll);
 		let rollData = rollresult.results; // Holding the computed data in an object is a bit cleaner if your rolls get more complex
 		rollData = Object.assign(rollresult);
 
 		rollData.total = rollTotal; 
 		rollData.diff = rollDiff;
-		rollData.favoured = favId; 
+		//rollData.favoured = favOutput; 
 		rollData.outcome = outcome;
+		rollData.greatness = successDegree;
 		console.log('Roll data: ' + JSON.stringify(rollData));
 
-		rollData.passthroughdata = "This is a test";
+		//rollData.passthroughdata = "This is a test";
 
         // Finish the roll, passing the escaped rollData object into the template as computed::passthroughdata
         // Our roll template then inserts that into [butonlabel](~selected|buttonlink||<computed::passthroughdata>)
@@ -185,20 +170,18 @@
         //finishRoll(rollresult.rollId, rollresult.results);
         finishRoll(rollresult.rollId, rollData);
 
-		/*
-		{
-            //passthroughdata: rollEscape.escape({difference: `${diff}` }),
-			//character: charname,
-			//total: rollValue,
-			difference: diff,
-        }
-		*/
     };
 
     // The attribute rolls
     on('clicked:strength clicked:wits clicked:heart', async (ev) => {
-        clog(`Starting first roll`);
-        await rollFirst(ev, 14);
+        clog(`Starting first roll`);		
+		let action = (ev.htmlAttributes.name).slice(4),
+			data = await asw.getAttrs(['character_name', '${action}tn', action, `${action}_favoured`, 'favourill']),
+			actdice = data[action],
+			act_fav = data[`${action}_favoured`],
+			tn = data[`${action}tn`];
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, Action value: ${actdice}, Action favoured value: ${act_fav}`);
+        await rollFirst(data.character_name, action, actdice, tn, act_fav, data.favourill, "attribute");
         clog(`Completed first roll`);
     });
 
@@ -210,7 +193,54 @@
 			actdice = data[action],
 			act_fav = data[`${action}_favoured`];
 		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, Action value: ${actdice}, Action favoured value: ${act_fav}`);
-        await rollFirst(data.character_name, action, actdice, data.strengthtn, act_fav, data.favourill);
+        await rollFirst(data.character_name, action, actdice, data.strengthtn, act_fav, data.favourill, "skill");
+        clog(`Completed first roll`);
+    });
+
+    // Heart based skill rolls
+    on('clicked:enhearten clicked:travel clicked:insight clicked:healing clicked:courtesy clicked:battle', async (ev) => {
+        clog(`Starting first roll`);
+		let action = (ev.htmlAttributes.name).slice(4),
+			data = await asw.getAttrs(['character_name', 'hearttn', action, `${action}_favoured`, 'favourill']),
+			actdice = data[action],
+			act_fav = data[`${action}_favoured`];
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, Action value: ${actdice}, Action favoured value: ${act_fav}`);
+        await rollFirst(data.character_name, action, actdice, data.hearttn, act_fav, data.favourill, "skill");
+        clog(`Completed first roll`);
+    });
+
+    // Wits based skill rolls
+    on('clicked:persuade clicked:stealth clicked:scan clicked:explore clicked:riddle clicked:lore', async (ev) => {
+        clog(`Starting first roll`);
+		let action = (ev.htmlAttributes.name).slice(4),
+			data = await asw.getAttrs(['character_name', 'witstn', action, `${action}_favoured`, 'favourill']),
+			actdice = data[action],
+			act_fav = data[`${action}_favoured`];
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, Action value: ${actdice}, Action favoured value: ${act_fav}`);
+        await rollFirst(data.character_name, action, actdice, data.witstn, act_fav, data.favourill, "skill");
+        clog(`Completed first roll`);
+    });
+
+    // Combat proficiency rolls
+    on('clicked:axes clicked:bows clicked:spears clicked:swords', async (ev) => {
+        clog(`Starting first roll`);
+		let action = (ev.htmlAttributes.name).slice(4),
+			data = await asw.getAttrs(['character_name', 'witstn', action, `${action}_favoured`, 'favourill']),
+			actdice = data[action],
+			act_fav = data[`${action}_favoured`];
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, Action value: ${actdice}, Action favoured value: ${act_fav}`);
+        await rollFirst(data.character_name, action, actdice, data.witstn, act_fav, data.favourill, "attack");
+        clog(`Completed first roll`);
+    });
+
+    // Protection rolls
+    on('clicked:protection', async (ev) => {
+        clog(`Starting first roll`);
+		let action = (ev.htmlAttributes.name).slice(4),
+			data = await asw.getAttrs(['character_name', action, 'armourprot', 'helmprot']),
+			actdice = int(data.armourprot,0) + int(data.helmprot,0);
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, protection value: ${actdice}`);
+        await rollFirst(data.character_name, action, actdice, "0", "0", "0", "protection");
         clog(`Completed first roll`);
     });
 
@@ -270,337 +300,26 @@
 		});
 	});
 });
-    on("change:weary sheet:opened", function() {
+// Replaced with a foreach to cover all changeable attributes. However, these are not used...
+attrs = ["awe", "athletics", "awareness", "hunting", "song", "craft", "enhearten", "travel", "insight", "healing", "courtesy", "battle", "persuade", "stealth", "scan", "explore", "riddle", "lore", "valour", "wisdom"];
+ _.each(attrs, (element, index, attrs) => {
+	on(`change:${element}_favoured sheet:opened`, function() {
+		getAttrs([`${element}_favoured`], function(values) {
+			let value = values[`${element}_favoured`]||0;
+			valuetype = value == 0 ? "normal" : "favoured";
+			setAttrs({
+				[`${element}_fav`]: valuetype,
+			});
+		});
+	});
+ });
+
+on("change:weary sheet:opened", function() {
 	getAttrs(["weary"], function(values) {
 		let weary = values.weary||0;
-		if (weary == 0) {
-			wearytype = "normal";
-		}
-		else {
-			wearytype = "weary";
-		}
-
+		wearytype = weary == 0 ? "normal" : "weary";
 		setAttrs({
 			wearytype: wearytype,
-		});
-	});
-});
-    on("change:awe_favoured sheet:opened", function() {
-	getAttrs(["awe_favoured"], function(values) {
-		let faved = values.awe_favoured||0;
-		if (faved == 0) {
-			favtype = 0;
-		}
-		else {
-			favtype = 1;
-		}
-
-		setAttrs({
-			awe_fav: favtype,
-		});
-	});
-});
-
-    on("change:athletics_favoured sheet:opened", function() {
-	getAttrs(["athletics_favoured"], function(values) {
-		let faved = values.athletics_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			athletics_fav: favtype,
-		});
-	});
-});
-
-    on("change:awareness_favoured sheet:opened", function() {
-	getAttrs(["awareness_favoured"], function(values) {
-		let faved = values.awareness_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			awareness_fav: favtype,
-		});
-	});
-});
-
-    on("change:hunting_favoured sheet:opened", function() {
-	getAttrs(["hunting_favoured"], function(values) {
-		let faved = values.hunting_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			hunting_fav: favtype,
-		});
-	});
-});
-
-    on("change:song_favoured sheet:opened", function() {
-	getAttrs(["song_favoured"], function(values) {
-		let faved = values.song_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			song_fav: favtype,
-		});
-	});
-});
-
-    on("change:craft_favoured sheet:opened", function() {
-	getAttrs(["craft_favoured"], function(values) {
-		let faved = values.craft_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			craft_fav: favtype,
-		});
-	});
-});
-
-    on("change:enhearten_favoured sheet:opened", function() {
-	getAttrs(["enhearten_favoured"], function(values) {
-		let faved = values.enhearten_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			enhearten_fav: favtype,
-		});
-	});
-});
-
-    on("change:travel_favoured sheet:opened", function() {
-	getAttrs(["travel_favoured"], function(values) {
-		let faved = values.travel_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			travel_fav: favtype,
-		});
-	});
-});
-
-    on("change:insight_favoured sheet:opened", function() {
-	getAttrs(["insight_favoured"], function(values) {
-		let faved = values.insight_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			insight_fav: favtype,
-		});
-	});
-});
-
-    on("change:healing_favoured sheet:opened", function() {
-	getAttrs(["healing_favoured"], function(values) {
-		let faved = values.healing_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			healing_fav: favtype,
-		});
-	});
-});
-
-    on("change:courtesy_favoured sheet:opened", function() {
-	getAttrs(["courtesy_favoured"], function(values) {
-		let faved = values.courtesy_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			courtesy_fav: favtype,
-		});
-	});
-});
-
-    on("change:battle_favoured sheet:opened", function() {
-	getAttrs(["battle_favoured"], function(values) {
-		let faved = values.battle_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			battle_fav: favtype,
-		});
-	});
-});
-
-    on("change:persuade_favoured sheet:opened", function() {
-	getAttrs(["persuade_favoured"], function(values) {
-		let faved = values.persuade_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			persuade_fav: favtype,
-		});
-	});
-});
-
-    on("change:stealth_favoured sheet:opened", function() {
-	getAttrs(["stealth_favoured"], function(values) {
-		let faved = values.stealth_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			stealth_fav: favtype,
-		});
-	});
-});
-
-    on("change:scan_favoured sheet:opened", function() {
-	getAttrs(["scan_favoured"], function(values) {
-		let faved = values.scan_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			scan_fav: favtype,
-		});
-	});
-});
-
-    on("change:explore_favoured sheet:opened", function() {
-	getAttrs(["explore_favoured"], function(values) {
-		let faved = values.explore_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			explore_fav: favtype,
-		});
-	});
-});
-
-    on("change:riddle_favoured sheet:opened", function() {
-	getAttrs(["riddle_favoured"], function(values) {
-		let faved = values.riddle_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			riddle_fav: favtype,
-		});
-	});
-});
-
-    on("change:lore_favoured sheet:opened", function() {
-	getAttrs(["lore_favoured"], function(values) {
-		let faved = values.lore_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			lore_fav: favtype,
-		});
-	});
-});
-
-    on("change:valour_favoured sheet:opened", function() {
-	getAttrs(["valour_favoured"], function(values) {
-		let faved = values.valour_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			valour_fav: favtype,
-		});
-	});
-});
-
-    on("change:wisdom_favoured sheet:opened", function() {
-	getAttrs(["wisdom_favoured"], function(values) {
-		let faved = values.wisdom_favoured||0;
-		if (faved == 0) {
-			favtype = "normal";
-		}
-		else {
-			favtype = "favoured";
-		}
-
-		setAttrs({
-			wisdom_fav: favtype,
 		});
 	});
 });
