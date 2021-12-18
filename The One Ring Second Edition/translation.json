@@ -160,5 +160,6 @@
 	"attacks-with": "attacks with",
 	"attacks-with-a": "attacks with a",
 	"charges-with": "charges with",
-	"an-attack": "to attack"
+	"an-attack": "to attack",
+	"parsedroll-description": "When enabled the dice rolls will be parsed and calculated, with output displayed in a rolltemplate. This removes the need for roll tables."
 }
