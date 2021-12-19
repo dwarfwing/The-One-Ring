@@ -161,5 +161,9 @@
 	"attacks-with-a": "attacks with a",
 	"charges-with": "charges with",
 	"an-attack": "to attack",
-	"parsedroll-description": "When enabled the dice rolls will be parsed and calculated, with output displayed in a rolltemplate. This removes the need for roll tables."
+	"parsedroll-description": "When enabled the dice rolls will be parsed and calculated, with output displayed in a rolltemplate. This removes the need for roll tables.",
+	"axes-description": "The AXES Combat Proficiency allows a Player-hero to use an axe, a great axe, a long-hafted axe, but also a mattock.",
+	"bows-description": "The BOWS Combat Proficiency enables a Player-hero to make ranged attacks using a bow or a great bow.",
+	"spears-description": "The SPEARS Combat Proficiency allows a hero to make and close combat attacks using a short spear or a spear, or to fight in close combat using a great spear.",
+	"swords-description": "The SWORDS Combat Proficiency enables a Player-hero to attack in close combat using short swords, swords, and long swords."
 }

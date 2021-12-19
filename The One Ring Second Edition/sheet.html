@@ -913,11 +913,15 @@
 		// GET MODIFIER AND FAVOURED HERE
 		if (rolltype === "protection") {
 			tn = await getQuery(`?{Injury rating of weapon (Target number)?|0}`);
-		}
-		if (act_fav === "1" || act_fav === "on") {
-			favId = await getQuery(`?{Favoured?| Favoured,2 | Normal,1 | Ill-favoured,0}`);
+		} else if (rolltype === "combat") {
+			favId = 1; 
+			tn = await getQuery(`?{Target number incl. Parry rating|${tn}}`);
 		} else {
-			favId = await getQuery(`?{Favoured?| Normal,1 | Favoured,2 | Ill-favoured,0}`);
+			if (act_fav === "1" || act_fav === "on") {
+				favId = await getQuery(`?{Favoured?| Favoured,2 | Normal,1 | Ill-favoured,0}`);
+			} else {
+				favId = await getQuery(`?{Favoured?| Normal,1 | Favoured,2 | Ill-favoured,0}`);
+			}
 		}
 		modifiers = await getQuery(`?{Modifiers?|0}`);
 		let modStr = modifiers == 0 ? "" : (modifiers > 0 ? `{{modification=+${modifiers}}}` : `{{modification=${modifiers}}}`);
@@ -1055,11 +1059,11 @@
     on('clicked:axes clicked:bows clicked:spears clicked:swords', async (ev) => {
         clog(`Starting first roll`);
 		let action = (ev.htmlAttributes.name).slice(4),
-			data = await asw.getAttrs(['character_name', 'witstn', action, `${action}_favoured`, 'favourill']),
+			data = await asw.getAttrs(['character_name', 'strengthtn', action, `${action}_favoured`, 'favourill']),
 			actdice = data[action],
 			act_fav = data[`${action}_favoured`];
 		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, Action value: ${actdice}, Action favoured value: ${act_fav}`);
-        await rollFirst(data.character_name, action, actdice, data.witstn, act_fav, data.favourill, "attack");
+        await rollFirst(data.character_name, action, actdice, data.strengthtn, act_fav, data.favourill, "combat");
         clog(`Completed first roll`);
     });
 
