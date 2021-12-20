@@ -1067,6 +1067,30 @@
         clog(`Completed first roll`);
     });
 
+    // Valour roll
+    on('clicked:valour', async (ev) => {
+        clog(`Starting first roll`);
+		let action = 'valour',
+			data = await asw.getAttrs(['character_name', 'hearttn', 'valour', 'valour_favoured', 'favourill']),
+			actdice = data.valour,
+			actfav = data.valour_favoured;
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, protection value: ${actdice}`);
+        await rollFirst(data.character_name, action, actdice, data.hearttn, actfav, data.favourill, "valour");
+        clog(`Completed first roll`);
+    });
+
+    // Wisdom roll
+    on('clicked:wisdom', async (ev) => {
+        clog(`Starting first roll`);
+		let action = 'wisdom',
+			data = await asw.getAttrs(['character_name', 'witstn', 'wisdom', 'wisdom_favoured', 'favourill']),
+			actdice = data.wisdom,
+			actfav = data.wisdom_favoured;
+		clog(`First roll: ${JSON.stringify(data)}, Action : ${action}, protection value: ${actdice}`);
+        await rollFirst(data.character_name, action, actdice, data.witstn, actfav, data.favourill, "wisdom");
+        clog(`Completed first roll`);
+    });
+
     // Protection rolls
     on('clicked:protection', async (ev) => {
         clog(`Starting first roll`);
