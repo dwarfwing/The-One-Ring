@@ -32,6 +32,14 @@
     font-weight: normal;
 }
 
+.attrib {
+	font-size: 10px;
+}
+.attrib .attrname { min-width: 40%; min-height: 25px;} 
+.attrib .current { min-width: 20%; } 
+.attrib .max { min-width: 20%; } 
+.attrib .divider { border: unset; border-right: unset; } 
+
 .sheet-strong {
     font-weight: bold;
 }
@@ -163,6 +171,7 @@ input.sheet-number {
     border-bottom: 2px solid rgba(0,0,0,.15);
 	text-align: center;
 	width: 35px;
+	font-size: 14px;
 }
 
 input.sheet-number {
@@ -187,7 +196,7 @@ input[type="text"],
 textarea {
     /*width: 100%;*/
 	font-family: "Book Antiqua", "Palatino Linotype", Palatino, serif, sans-serif;
-	font-size: 14px;
+	font-size: 15px;
 }
 
 input[type="checkbox"]:checked {
@@ -233,6 +242,7 @@ label.parsed-rolls {
 .oneh { width: 48%; min-width: 48%; }
 .oneq { width: 24%; min-width: 24%; }
 .threeq { width: 73%; min-width: 73%; }
+.whole { width: 98%; min-width: 98% }
 .row1 { grid-row: 1; }
 .row2 { grid-row: 2; }
 .row3 { grid-row: 3; }
@@ -282,6 +292,12 @@ label.parsed-rolls {
 	justify-content: left;
 	justify-self: left;
 	justify-items: left;
+}
+.right {
+	text-align: right;
+	justify-content: right;
+	justify-self: right;
+	justify-items: right;
 }
 
 .vertical-redbg
@@ -338,6 +354,10 @@ div.name {
 }
 div.name span{
 	font-size: 13px; 
+	margin-top: -12px;
+	background-color: white;
+	width: fit-content;
+	align-self: center;
 }
 div.name input[type="text"] {
 	font-size: 15px; 
@@ -385,14 +405,15 @@ div.info .sheet-col {
 div.info span.label,
 div.info label {
 	text-align: left;
-	-font-size: 10px;
+	font-size: 8px;
 	margin-top: 9px;
 	text-align: left;
 	justify-content: unset;
 }
 div.info input[type="text"] {
 	min-width: 98%;
-	padding: 6px 4px 0 4px;
+	padding: 6px 4px 2px 4px;
+	height: 21px;
 }
 div.info .age,
 div.info input[type="text"].age {
@@ -407,6 +428,8 @@ div.info input[type="text"].livingstandard {
 }
 div.info input[type="number"] {
 	min-width: 23%;
+	height: 21px;
+	padding: 6px 4px 2px 4px;
 }
 
 
@@ -572,37 +595,62 @@ div.sheet-row.attribute {
 	  height: unset;
   }
   
-
-.armour {
+  .ui-dialog .charsheet div.sheet-row.armour-grid {
+	display: grid;
+	grid-template-columns: 5fr 2fr 2fr 30px 30px;
+}
+.armour-grid .gridcol1 { grid-column: 1;}
+.armour-grid .gridcol2 { grid-column: 2;}
+.armour-grid .gridcol3 { grid-column: 3;}
+.armour-grid .gridcol4 { grid-column: 4;}
+.armour-grid .gridcol5 { grid-column: 5;}
+.armour-grid .gridcol6 { grid-column: 6;}
+.armour, .mount {
     display: flex;
 	flex-wrap: nowrap;
 	margin-left: 20px;
 }
-div.armour div.sheet-row {
+.armour-grid .label {
+	width: auto;
+}
+div.mount.sheet-row {
 	display: flex !important;
 	flex-wrap: nowrap;
 }
 .armour span {
-	display: flex;
+	-display: flex;
 	flex-wrap: nowrap;
 	margin-top: 25px;
 }
 .mount span {
 	display: flex;
 	flex-wrap: nowrap;
+	margin-top: 4px;
+}
+.mount h3 {
+	margin-bottom: unset;
 }
 .armour input,
 .mount-input input {
 	margin-left: 5px;
+	height: 22px;
+	padding: 2px;
 }
 .armour input[type="text"] {
 	text-align: left;
 	text-indent: 4px;
-	width: 48%;
-	min-width: 48%;
+	-width: 48%;
+	-min-width: 48%;
+	width: auto;
 }
-.mount-input input[type="text"] {
-	
+div.mount-input input[type="text"] {
+	width: 24%;
+	min-width: 24%;
+}
+div.armour-grid input.gridcol4,
+div.armour-grid input.gridcol5 {
+	display: flex;
+	align-self: center !important;
 }
 .armour button {
 	float: right; 
@@ -627,7 +675,7 @@ div.armour div.sheet-row {
 }
 .right-pane .endurance label.h3 + input[type="number"],
 .right-pane .hope label.h3 + input[type="number"] {
-	font-size: 16px;
+	font-size: 20px;
 }
 .right-pane label,
 .right-pane span {
@@ -636,7 +684,7 @@ div.armour div.sheet-row {
 	align-self: flex-end;
 }
 .right-pane input[type="number"] {
-    max-width: 23%;
+    -max-width: 23%;
 	display: flex;
 	justify-self: right;
 	align-self: flex-end;
@@ -649,14 +697,63 @@ div.armour div.sheet-row {
 	margin-top: 8px;
 }
 .right-pane .rolltypes {
-	margin-bottom: 12px;
+	-margin-bottom: 12px;
 }
-.right-pane .rolltypes input[type="checkbox"] {
+.right-pane .rolltypes .toggle {
+	border: 2px solid #AC4637;
+	height: 14px;
+	-align-content: center;
 	display: flex;
-	align-self: flex-end; 
+	-align-items: center;
+	-align-self: center;
+	border-radius: 14px;
+	text-align: center;
+	padding: 2px;
+}
+
+.right-pane .rolltypes .center {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-self: center;
+}
+.right-pane .rolltypes input[type="checkbox"],
+.right-pane .rolltypes input[type="radio"] {
+	display: flex;
+	-align-self: flex-end; 
+	justify-self: flex-end;
+	margin-bottom: 1px;
 }
 .right-pane .rolltypes .sheet-hover-info {
-	margin-top: 45px;
+	margin-top: 25px;
+}
+
+.right-pane div.custom-roll-title .oneh { font-size: 12px;  margin-top: 15px; }
+.right-pane div.custom-roll-title input[type="text"] { 
+	font-size: 15px;  
+	min-width: 90%; 
+	width: 90%; 
+	padding-bottom: 0;}
+	.right-pane div.custom-roll-headers { margin: 15px 0 5px 0; }
+	.right-pane div.custom-roll-headers span { font-size: 10px; }
+.right-pane div.custom-roll-headers .oneh {
+	min-width: 30%;
+    width: 30%;
+} 
+.right-pane div.custom-roll span,
+.right-pane div.custom-roll select,
+.right-pane div.custom-roll input {
+	align-self: center;
+}
+.right-pane div.custom-roll select {
+	min-width: 30px;
+	margin-bottom: 0;
+	width: 35%;
+	min-width: 35%;
+	font-size: 10px;
+}
+.right-pane div.custom-roll option {
+	font-size: 10px;
 }
 
 .skills-row .sheet-row,
@@ -717,6 +814,7 @@ input[type='radio'] {
     top: 2px;
     right: 0;
     -margin-right: 20px;
+	align-self: center;
 }
 
 .sheet-dots input[type='radio'] {
@@ -738,9 +836,9 @@ input[type='radio'] {
 	transform: rotate(45deg);
 	-webkit-transform: rotate(45deg);
 }
-input[type="radio"] + span::before
+.sheet-dots input[type="radio"] + span::before
 {
-    margin-right: 4px;
+    margin-right: 5px;
 	-margin-top: -5px;;
     text-align: center;
     display: inline-flex;
@@ -752,7 +850,7 @@ input[type="radio"] + span::before
     opacity: 1;
 	transform: rotate(45deg);
 }
-input[type="radio"][value="0"] + span:before {
+.sheet-dots input[type="radio"][value="0"] + span:before {
 	content: 'X';
 	transform: unset;
 	color: #AC4637;
@@ -819,6 +917,60 @@ div.treasure div.sheet-row span,
 div.treasure div.sheet-row input {
 	display: flex;
 }
+div.treasure h3 {
+	margin-bottom: 5px;
+}
+
+div.useful-items h3 {
+	margin-bottom: 5px;
+}
+div.useful-items {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	-flex-wrap: wrap;
+}
+.useful-items input.useful-item {
+	width: 100%;
+	display: flex;
+}
+div.useful-items div.repcontainer {
+	width: 100%;
+	min-width: 100%;
+}
+div.useful-items div.repcontainer div.itemcontrol {
+    float: right;
+	width: 100%;
+}
+div.useful-items div.repcontrol {
+    width: fit-content;
+    margin-left: 6px;
+	width: 100%;
+}
+div.useful-items .repcontrol_add, div.useful-items .repcontrol_edit { 
+    visibility: hidden;
+    width: 5px;
+    margin-left: -5px;
+    padding-left: 5px;
+  }
+  div.useful-items .repcontrol_add::before, div.useful-items .repcontrol_edit::before {
+    visibility:visible; 
+    color: grey;
+    font-family: "Pictos";
+  } 
+  div.useful-items .repcontrol_add::before {
+    content: "&";
+  }
+  div.useful-items .repcontrol_edit::before {
+    content: "(";
+  } 
+  div.useful-items .repcontrol_add, div.useful-items .repcontrol_edit, div.useful-items .repcontrol_move {
+    float: right;
+  }  
+  div.useful-items .repcontainer.editmode ~ .repcontrol button.repcontrol_edit::before {
+    font-family: "Pictos";
+    content: ")";
+  }
 
 div.avatar-img {
 	display: flex !important; 
@@ -846,7 +998,7 @@ div.weapons .sheet-col {
 
 div.weapons-grid {
 	display: grid;
-	grid-template-columns: 150px 50px 50px 50px auto;
+	grid-template-columns: 15px 120px 80px 40px 40px 40px 15px 15px 15px auto;
 	-grid-template-columns: repeat(10,1fr);
 	-grid-template-rows: repeat(7,1fr);
 	grid-gap: 5px;
@@ -856,212 +1008,83 @@ div.weapons-grid {
 	}
 	div.weapons-grid .weapon-cell {
 		width: 100%;
-		grid-column: 1;
+		grid-column: 2;
 		margin: 2pt 0pt 0pt 0pt;
-		width: 150px;
+		-width: 150px;
 	}	
-	div.weapons-grid input.weapon-cell{
+	.ui-dialog .charsheet div.weapons-grid input {
+		height: 28px;
+	}
+	div.weapons-grid input[type="text"].weapon-cell{
 		-font-size: 11px;
 		text-align: left;
 	}
-	div.weapons-grid .damage-cell {
+	div.weapons-grid label.weapon-header {
+		margin-top: 15px;
+	}
+	div.weapons-grid .button-cell {
 		width: 100%;
-		grid-column: 2;
+		grid-column: 1;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid .injury-cell {
+	div.weapons-grid .type-cell {
 		width: 100%;
 		grid-column: 3;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid .load-cell {
+	div.weapons-grid select {
+		width: 80px;
+		max-width: 80px;
+		font-size: 9px;
+		border-top: 0;
+		border-right: 0;
+		border-left: 0;
+		border-bottom: 2px solid rgba(0,0,0,.15);
+		margin: 3px;
+	}
+	div.weapons-grid option {
+		font-size: 9px;
+	}
+	@supports (-moz-appearance:none) {
+		div.weapons-grid option { font-size: 12px; }
+	}
+	div.weapons-grid .damage-cell {
 		width: 100%;
 		grid-column: 4;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid .notes-cell {
+	div.weapons-grid .injury-cell {
 		width: 100%;
 		grid-column: 5;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-
-	/* div.weapons-grid label[data-i18n-title="weapon"] {
-		width: 100%;
-		grid-column: 1 / 4;
-		grid-row: 1;
-		margin: 2pt 0pt 0pt 0pt;
-	}	
-	div.weapons-grid label[data-i18n-title="dmg"] {
-		width: 100%;
-		grid-column: 5;
-		grid-row: 1;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="inj"] {
+	div.weapons-grid .load-cell {
 		width: 100%;
 		grid-column: 6;
-		grid-row: 1;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid label[data-i18n-title="load"] {
+	div.weapons-grid .fell-cell {
 		width: 100%;
 		grid-column: 7;
-		grid-row: 1;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid label[data-i18n-title="notes"] {
-		width: 100%;
-		grid-column: 8 / 10;
-		grid-row: 1;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="weapon1"] {
-		width: 100%;
-		grid-column: 1 / span 7;
-		grid-row: 2;
-		margin: 2pt 0pt 0pt 0pt;
-	}	
-	div.weapons-grid label[data-i18n-title="dmg1"] {
-		width: 100%;
-		min-width: 0;
-		grid-column: 8;
-		grid-row: 2;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="inj1"] {
-		width: 100%;
-		grid-column: 9;
-		grid-row: 2;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="load1"] {
-		width: 100%;
-		grid-column: 10;
-		grid-row: 2;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="weapon2"] {
-		width: 100%;
-		grid-column: 1 / span 7;
-		grid-row: 3;
-		margin: 2pt 0pt 0pt 0pt;
-	}	
-	div.weapons-grid label[data-i18n-title="dmg2"] {
+	div.weapons-grid .grievous-cell {
 		width: 100%;
 		grid-column: 8;
-		grid-row: 3;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid label[data-i18n-title="inj2"] {
+	div.weapons-grid .keen-cell {
 		width: 100%;
 		grid-column: 9;
-		grid-row: 3;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid label[data-i18n-title="load2"] {
+	div.weapons-grid .notes-cell {
 		width: 100%;
 		grid-column: 10;
-		grid-row: 3;
 		margin: 2pt 0pt 0pt 0pt;
 	}
-	div.weapons-grid label[data-i18n-title="weapon3"] {
-		width: 100%;
-		grid-column: 1 / span 7;
-		grid-row: 4;
-		margin: 2pt 0pt 0pt 0pt;
-	}	
-	div.weapons-grid label[data-i18n-title="dmg3"] {
-		width: 100%;
-		grid-column: 8;
-		grid-row: 4;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="inj3"] {
-		width: 100%;
-		grid-column: 9;
-		grid-row: 4;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="load3"] {
-		width: 100%;
-		grid-column: 10;
-		grid-row: 4;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="weapon4"] {
-		width: 100%;
-		grid-column: 1 / span 7;
-		grid-row: 5;
-		margin: 2pt 0pt 0pt 0pt;
-	}	
-	div.weapons-grid label[data-i18n-title="dmg4"] {
-		width: 100%;
-		grid-column: 8;
-		grid-row: 5;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="inj4"] {
-		width: 100%;
-		grid-column: 9;
-		grid-row: 5;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="load4"] {
-		width: 100%;
-		grid-column: 10;
-		grid-row: 5;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="weapon5"] {
-		width: 100%;
-		grid-column: 1 / span 7;
-		grid-row: 6;
-		margin: 2pt 0pt 0pt 0pt;
-	}	
-	div.weapons-grid label[data-i18n-title="dmg5"] {
-		width: 100%;
-		grid-column: 8;
-		grid-row: 6;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="inj5"] {
-		width: 100%;
-		grid-column: 9;
-		grid-row: 6;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="load5"] {
-		width: 100%;
-		grid-column: 10;
-		grid-row: 6;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="weapon6"] {
-		width: 100%;
-		grid-column: 1 / span 7;
-		grid-row: 7;
-		margin: 2pt 0pt 0pt 0pt;
-	}	
-	div.weapons-grid label[data-i18n-title="dmg6"] {
-		width: 100%;
-		grid-column: 8;
-		grid-row: 7;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="inj6"] {
-		width: 100%;
-		grid-column: 9;
-		grid-row: 7;
-		margin: 2pt 0pt 0pt 0pt;
-	}
-	div.weapons-grid label[data-i18n-title="load6"] {
-		width: 100%;
-		grid-column: 10;
-		grid-row: 7;
-		margin: 2pt 0pt 0pt 0pt;
-	} */
 
-	/* Smaller margins - remove these if you want the huge default left margin */
+
 
 
 .sheet-rolltemplate-tor {
@@ -1087,6 +1110,10 @@ div.weapons-grid {
   .sheet-rolltemplate-tor .sheet-content {
 	height: 250px;
   }
+  .sheet-rolltemplate-tor .sheet-red,
+  .sheet-rolltemplate-tor .sheet-red span {
+	  color: var(--header-bg-color);
+  }
   /* Header formatting - title and subtitle */
   .sheet-rolltemplate-tor .sheet-header {
 	background-color: var(--header-bg-color);
@@ -1094,6 +1121,10 @@ div.weapons-grid {
 	text-align: left;
 	color: var(--header-text-color);
 	padding: 5px;
+  }
+  .sheet-rolltemplate-tor .sheet-footer {	  
+	padding: 5px;
+	margin-top: -5px;
   }
   .sheet-rolltemplate-tor .sheet-title {
 	font-size: 15px;
@@ -1253,43 +1284,60 @@ div.weapons-grid {
 	left: 12px;
 }
 .sheet-rolltemplate-tor .sheet-favoured,
-.sheet-rolltemplate-tor .sheet-modification {
+.sheet-rolltemplate-tor .sheet-modification,
+.sheet-rolltemplate-tor .sheet-miserable,
+.sheet-rolltemplate-tor .sheet-weary {
 	position: relative;
     top: -40px;
 }
-.sheet-rolltemplate-tor .sheet-favoured {
+.sheet-rolltemplate-tor .sheet-favoured,
+.sheet-rolltemplate-tor .sheet-miserable {
 	right: 30px;
 }
-.sheet-rolltemplate-tor .sheet-modification {
+.sheet-rolltemplate-tor .sheet-modification,
+.sheet-rolltemplate-tor .sheet-weary {
 	left: 30px;
 }
 
  .sheet-rolltemplate-tor .sheet-roll-total {
 	position: relative;
-	top: -64px;
+	top: -81px;
  }
  .sheet-rolltemplate-tor .sheet-roll-diff {
 	 position: relative;
-	 top: -58px;
+	 top: -78px;
+ }
+ .sheet-rolltemplate-tor .sheet-roll-total.sheet-die-title {
+	 margin-top: 2px;
+ }
+ .sheet-rolltemplate-tor .sheet-roll-diff.sheet-die-title {
+	 margin-top: 5px;
  }
  .sheet-rolltemplate-tor .sheet-roll-outcome {
 	position: relative;
-	top: -46px;
-	background-color: #AC4637;
-	border: 2px solid #AC4637;
-	color: #FFF;
+	top: -70px;
 	display: flex;
 	align-self: center;
-	width: fit-content;
 	text-align: center;
-	padding: 3px;
+	background-color: transparent;
  }
- .sheet-rolltemplate-tor .sheet-roll-outcome span {
+ .sheet-rolltemplate-tor .sheet-roll-outcome div.sheet-die-title {
 	 display: flex;
 	 align-self: center;
+	 padding: 3px;
+	 background-color: #AC4637;
+	 border: 2px solid #AC4637;
+	 color: #FFF;
+	 width: fit-content;
+ }
+ .sheet-rolltemplate-tor .sheet-roll-outcome span {
+	 padding: 0;
+	 margin: 0;
 	 background-color: transparent;
 	 border: 0;
-	 padding: 0;
+ }
+ .sheet-rolltemplate-tor .sheet-additional {
+	 padding: 3px;
  }
 
 
